@@ -6,7 +6,8 @@ SQLite database. The code is intended as a starting point for a larger system.
 
 ## Features
 
-* Initialize the database with `/init`.
+* Initialize the database with `/init`. This also creates a default
+  administrator account (`admin`/`admin`).
 * Register a sale using `/sale` with JSON payload `{"product": "name", "store": "bar"}`.
   A random hexadecimal code is generated for the ticket.
 * Mark a sale as delivered using `/delivery` with JSON payload `{"code": "hex"}`.
@@ -34,4 +35,5 @@ The server now includes a basic HTML interface for the entire prototype. Use
 `/login` to authenticate and then navigate to the pages listed above to manage
 roles, users, inventory, products, recipes and sales. Session tokens are stored
 in the database so authentication survives server restarts, though security
-remains minimal.
+remains minimal. After initialization you can log in with the default
+administrator credentials `admin`/`admin`.

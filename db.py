@@ -95,6 +95,17 @@ def init_db():
         FOREIGN KEY(user_id) REFERENCES users(id)
     )"""
     )
+    # default admin role and user
+    cur.execute("INSERT OR IGNORE INTO roles(name) VALUES ('admin')")
+    cur.execute("SELECT id FROM roles WHERE name='admin'")
+    role_row = cur.fetchone()
+    admin_role = role_row[0] if role_row else None
+    password_hash = hashlib.sha256('admin'.encode()).hexdigest()
+    if admin_role is not None:
+        cur.execute(
+            "INSERT OR IGNORE INTO users(username, password_hash, role_id) VALUES ('admin', ?, ?)",
+            (password_hash, admin_role),
+        )
     conn.commit()
     conn.close()
 

@@ -22,6 +22,7 @@ def test_sale_and_delivery():
 
 
 def test_authenticate():
+    assert db.authenticate("admin", "admin")
     assert db.authenticate("juan", "pass")
     assert not db.authenticate("juan", "wrong")
 
