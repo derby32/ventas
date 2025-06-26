@@ -138,6 +138,42 @@ def list_users():
     return users
 
 
+def list_roles():
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT name FROM roles ORDER BY name")
+    roles = [r[0] for r in cur.fetchall()]
+    conn.close()
+    return roles
+
+
+def list_stores():
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT name FROM stores ORDER BY name")
+    stores = [r[0] for r in cur.fetchall()]
+    conn.close()
+    return stores
+
+
+def list_items():
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT name FROM items ORDER BY name")
+    items = [r[0] for r in cur.fetchall()]
+    conn.close()
+    return items
+
+
+def list_products():
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT name FROM products ORDER BY name")
+    products = [r[0] for r in cur.fetchall()]
+    conn.close()
+    return products
+
+
 def add_store(name: str):
     conn = get_connection()
     cur = conn.cursor()

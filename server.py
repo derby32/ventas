@@ -72,15 +72,178 @@ class Handler(BaseHTTPRequestHandler):
             self._set_headers()
             users = db.list_users()
             user_list = ''.join(f'<li>{u}</li>' for u in users)
+            roles = db.list_roles()
+            role_opts = ''.join(f'<option>{r}</option>' for r in roles)
             form = (
                 "<form method='POST' action='/users'>"
                 "Usuario:<input name='username'>"
                 "Clave:<input type='password' name='password'>"
-                "Rol:<input name='role'>"
+                "Rol:<select name='role'>" + role_opts + "</select>"
                 "<input type='submit' value='Add'>"
                 "</form>"
             )
-            self.wfile.write(f"<ul>{user_list}</ul>{form}".encode())
+            self.wfile.write(f"<h1>Usuarios</h1><ul>{user_list}</ul>{form}".encode())
+        elif self.path == '/roles':
+            if not user:
+                self._set_headers(302)
+                self.send_header('Location', '/login')
+                self.end_headers()
+                return
+            self._set_headers()
+            roles = db.list_roles()
+            role_list = ''.join(f'<li>{r}</li>' for r in roles)
+            form = (
+                "<form method='POST' action='/roles'>"
+                "Rol:<input name='name'>"
+                "<input type='submit' value='Add'>"
+                "</form>"
+            )
+            self.wfile.write(f"<h1>Roles</h1><ul>{role_list}</ul>{form}".encode())
+        elif self.path == '/stores':
+            if not user:
+                self._set_headers(302)
+                self.send_header('Location', '/login')
+                self.end_headers()
+                return
+            self._set_headers()
+            stores = db.list_stores()
+            store_list = ''.join(f'<li>{s}</li>' for s in stores)
+            form = (
+                "<form method='POST' action='/stores'>"
+                "Deposito:<input name='name'>"
+                "<input type='submit' value='Add'>"
+                "</form>"
+            )
+            self.wfile.write(f"<h1>Depositos</h1><ul>{store_list}</ul>{form}".encode())
+        elif self.path == '/items':
+            if not user:
+                self._set_headers(302)
+                self.send_header('Location', '/login')
+                self.end_headers()
+                return
+            self._set_headers()
+            items = db.list_items()
+            item_list = ''.join(f'<li>{i}</li>' for i in items)
+            form = (
+                "<form method='POST' action='/items'>"
+                "Insumo:<input name='name'>"
+                "Unidad:<input name='unit'>"
+                "<input type='submit' value='Add'>"
+                "</form>"
+            )
+            self.wfile.write(f"<h1>Insumos</h1><ul>{item_list}</ul>{form}".encode())
+        elif self.path == '/inventory':
+            if not user:
+                self._set_headers(302)
+                self.send_header('Location', '/login')
+                self.end_headers()
+                return
+            self._set_headers()
+            stores = db.list_stores()
+            items = db.list_items()
+            store_opts = ''.join(f'<option>{s}</option>' for s in stores)
+            item_opts = ''.join(f'<option>{i}</option>' for i in items)
+            form = (
+                "<form method='POST' action='/inventory'>"
+                "Deposito:<select name='store'>" + store_opts + "</select>"
+                "Insumo:<select name='item'>" + item_opts + "</select>"
+                "Cantidad:<input name='quantity'>"
+                "<input type='submit' value='Set'>"
+                "</form>"
+            )
+            self.wfile.write(form.encode())
+        elif self.path == '/products':
+            if not user:
+                self._set_headers(302)
+                self.send_header('Location', '/login')
+                self.end_headers()
+                return
+            self._set_headers()
+            products = db.list_products()
+            product_list = ''.join(f'<li>{p}</li>' for p in products)
+            form = (
+                "<form method='POST' action='/products'>"
+                "Producto:<input name='name'>"
+                "Precio:<input name='price'>"
+                "<input type='submit' value='Add'>"
+                "</form>"
+            )
+            self.wfile.write(f"<h1>Productos</h1><ul>{product_list}</ul>{form}".encode())
+        elif self.path == '/recipes':
+            if not user:
+                self._set_headers(302)
+                self.send_header('Location', '/login')
+                self.end_headers()
+                return
+            self._set_headers()
+            products = db.list_products()
+            items = db.list_items()
+            prod_opts = ''.join(f'<option>{p}</option>' for p in products)
+            item_opts = ''.join(f'<option>{i}</option>' for i in items)
+            form = (
+                "<form method='POST' action='/recipes'>"
+                "Producto:<select name='product'>" + prod_opts + "</select>"
+                "Insumo:<select name='item'>" + item_opts + "</select>"
+                "Cantidad:<input name='amount'>"
+                "<input type='submit' value='Add'>"
+                "</form>"
+            )
+            self.wfile.write(form.encode())
+        elif self.path == '/sale':
+            if not user:
+                self._set_headers(302)
+                self.send_header('Location', '/login')
+                self.end_headers()
+                return
+            self._set_headers()
+            products = db.list_products()
+            stores = db.list_stores()
+            prod_opts = ''.join(f'<option>{p}</option>' for p in products)
+            store_opts = ''.join(f'<option>{s}</option>' for s in stores)
+            form = (
+                "<form method='POST' action='/sale'>"
+                "Producto:<select name='product'>" + prod_opts + "</select>"
+                "Deposito:<select name='store'>" + store_opts + "</select>"
+                "<input type='submit' value='Vender'>"
+                "</form>"
+            )
+            self.wfile.write(form.encode())
+        elif self.path == '/delivery':
+            if not user:
+                self._set_headers(302)
+                self.send_header('Location', '/login')
+                self.end_headers()
+                return
+            self._set_headers()
+            form = (
+                "<form method='POST' action='/delivery'>"
+                "Codigo:<input name='code'>"
+                "<input type='submit' value='Entregar'>"
+                "</form>"
+            )
+            self.wfile.write(form.encode())
+        elif self.path == '/':
+            if not user:
+                self._set_headers(302)
+                self.send_header('Location', '/login')
+                self.end_headers()
+                return
+            self._set_headers()
+            links = (
+                "<ul>"
+                "<li><a href='/users'>Usuarios</a></li>"
+                "<li><a href='/roles'>Roles</a></li>"
+                "<li><a href='/stores'>Depositos</a></li>"
+                "<li><a href='/items'>Insumos</a></li>"
+                "<li><a href='/inventory'>Inventario</a></li>"
+                "<li><a href='/products'>Productos</a></li>"
+                "<li><a href='/recipes'>Recetas</a></li>"
+                "<li><a href='/sale'>Venta</a></li>"
+                "<li><a href='/delivery'>Entrega</a></li>"
+                "<li><a href='/logout'>Logout</a></li>"
+                "</ul>"
+            )
+            self.wfile.write(links.encode())
         else:
             if not user:
                 self._set_headers(302)
@@ -137,6 +300,132 @@ class Handler(BaseHTTPRequestHandler):
             if username and password:
                 try:
                     db.add_user(username, role, password)
+                    self._set_headers()
+                    self.wfile.write(b'added')
+                except ValueError:
+                    self._set_headers(400)
+                    self.wfile.write(b'error')
+            else:
+                self._set_headers(400)
+                self.wfile.write(b'error')
+        elif self.path == '/roles':
+            user = self._read_user()
+            if not user:
+                self._set_headers(403)
+                self.wfile.write(b'Forbidden')
+                return
+            name = payload.get('name')
+            if isinstance(name, list):
+                name = name[0]
+            if name:
+                db.add_role(name)
+                self._set_headers()
+                self.wfile.write(b'added')
+            else:
+                self._set_headers(400)
+                self.wfile.write(b'error')
+        elif self.path == '/stores':
+            user = self._read_user()
+            if not user:
+                self._set_headers(403)
+                self.wfile.write(b'Forbidden')
+                return
+            name = payload.get('name')
+            if isinstance(name, list):
+                name = name[0]
+            if name:
+                db.add_store(name)
+                self._set_headers()
+                self.wfile.write(b'added')
+            else:
+                self._set_headers(400)
+                self.wfile.write(b'error')
+        elif self.path == '/items':
+            user = self._read_user()
+            if not user:
+                self._set_headers(403)
+                self.wfile.write(b'Forbidden')
+                return
+            name = payload.get('name')
+            unit = payload.get('unit')
+            if isinstance(name, list):
+                name = name[0]
+            if isinstance(unit, list):
+                unit = unit[0]
+            if name and unit:
+                db.add_item(name, unit)
+                self._set_headers()
+                self.wfile.write(b'added')
+            else:
+                self._set_headers(400)
+                self.wfile.write(b'error')
+        elif self.path == '/inventory':
+            user = self._read_user()
+            if not user:
+                self._set_headers(403)
+                self.wfile.write(b'Forbidden')
+                return
+            store = payload.get('store')
+            item = payload.get('item')
+            quantity = payload.get('quantity')
+            if isinstance(store, list):
+                store = store[0]
+            if isinstance(item, list):
+                item = item[0]
+            if isinstance(quantity, list):
+                quantity = quantity[0]
+            if store and item and quantity is not None:
+                try:
+                    db.set_inventory(store, item, float(quantity))
+                    self._set_headers()
+                    self.wfile.write(b'set')
+                except ValueError:
+                    self._set_headers(400)
+                    self.wfile.write(b'error')
+            else:
+                self._set_headers(400)
+                self.wfile.write(b'error')
+        elif self.path == '/products':
+            user = self._read_user()
+            if not user:
+                self._set_headers(403)
+                self.wfile.write(b'Forbidden')
+                return
+            name = payload.get('name')
+            price = payload.get('price')
+            if isinstance(name, list):
+                name = name[0]
+            if isinstance(price, list):
+                price = price[0]
+            if name and price:
+                try:
+                    db.add_product(name, float(price))
+                    self._set_headers()
+                    self.wfile.write(b'added')
+                except ValueError:
+                    self._set_headers(400)
+                    self.wfile.write(b'error')
+            else:
+                self._set_headers(400)
+                self.wfile.write(b'error')
+        elif self.path == '/recipes':
+            user = self._read_user()
+            if not user:
+                self._set_headers(403)
+                self.wfile.write(b'Forbidden')
+                return
+            product = payload.get('product')
+            item = payload.get('item')
+            amount = payload.get('amount')
+            if isinstance(product, list):
+                product = product[0]
+            if isinstance(item, list):
+                item = item[0]
+            if isinstance(amount, list):
+                amount = amount[0]
+            if product and item and amount:
+                try:
+                    db.add_recipe(product, item, float(amount))
                     self._set_headers()
                     self.wfile.write(b'added')
                 except ValueError:
