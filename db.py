@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 import hashlib
 
 DB_PATH = 'ventas.db'
@@ -255,7 +255,7 @@ def create_sale(product: str, store: str, code_hex: str) -> int:
     cur.execute(
         "INSERT INTO sales(created_at, product_id, store_id, code_hex, delivered) "
         "VALUES (?,?,?,?,0)",
-        (datetime.utcnow().isoformat(), prod[0], store_row[0], code_hex),
+        (datetime.now(timezone.utc).isoformat(), prod[0], store_row[0], code_hex),
     )
     sale_id = cur.lastrowid
     conn.commit()
@@ -305,7 +305,7 @@ def create_session(username: str, token: str):
         raise ValueError("user not found")
     cur.execute(
         "INSERT INTO sessions(token, user_id, created_at) VALUES (?,?,?)",
-        (token, user[0], datetime.utcnow().isoformat()),
+        (token, user[0], datetime.now(timezone.utc).isoformat()),
     )
     conn.commit()
     conn.close()
