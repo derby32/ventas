@@ -9,8 +9,6 @@ import db
 HOST = '0.0.0.0'
 PORT = 8000
 
-SESSIONS = {}
-
 
 def random_hex(n=8):
     return secrets.token_hex(n)
@@ -29,7 +27,7 @@ class Handler(BaseHTTPRequestHandler):
         cookie = SimpleCookie(self.headers.get('Cookie'))
         session = cookie.get('session')
         if session:
-            return SESSIONS.get(session.value)
+            return db.get_user_by_session(session.value)
         return None
 
     def do_GET(self):
@@ -55,10 +53,10 @@ class Handler(BaseHTTPRequestHandler):
             )
         elif self.path == '/logout':
             if user:
-                for key, val in list(SESSIONS.items()):
-                    if val == user:
-                        del SESSIONS[key]
-                        break
+                cookie = SimpleCookie(self.headers.get('Cookie'))
+                session = cookie.get('session')
+                if session:
+                    db.delete_session(session.value)
             self._set_headers()
             self.send_header('Set-Cookie', 'session=; Path=/; Max-Age=0')
             self.end_headers()
@@ -274,7 +272,7 @@ class Handler(BaseHTTPRequestHandler):
                 password = password[0]
             if username and password and db.authenticate(username, password):
                 token = random_hex(16)
-                SESSIONS[token] = username
+                db.create_session(username, token)
                 self._set_headers()
                 self.send_header('Set-Cookie', f'session={token}; Path=/')
                 self.end_headers()

@@ -25,3 +25,11 @@ def test_authenticate():
     assert db.authenticate("juan", "pass")
     assert not db.authenticate("juan", "wrong")
 
+
+def test_session_cycle():
+    token = "abcd"
+    db.create_session("juan", token)
+    assert db.get_user_by_session(token) == "juan"
+    db.delete_session(token)
+    assert db.get_user_by_session(token) is None
+

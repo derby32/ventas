@@ -32,5 +32,6 @@ items, products and recipes. See the code for details.
 
 The server now includes a basic HTML interface for the entire prototype. Use
 `/login` to authenticate and then navigate to the pages listed above to manage
-roles, users, inventory, products, recipes and sales. Authentication relies on
-in-memory cookies so it should only be used for testing.
+roles, users, inventory, products, recipes and sales. Session tokens are stored
+in the database so authentication survives server restarts, though security
+remains minimal.

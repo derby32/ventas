@@ -86,6 +86,15 @@ def init_db():
         FOREIGN KEY(store_id) REFERENCES stores(id)
     )"""
     )
+    # Persistent sessions
+    cur.execute(
+        """CREATE TABLE IF NOT EXISTS sessions (
+        token TEXT PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )"""
+    )
     conn.commit()
     conn.close()
 
@@ -285,4 +294,41 @@ def mark_delivered(code_hex: str):
     conn.commit()
     conn.close()
     return True
+
+
+def create_session(username: str, token: str):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM users WHERE username=?", (username,))
+    user = cur.fetchone()
+    if not user:
+        raise ValueError("user not found")
+    cur.execute(
+        "INSERT INTO sessions(token, user_id, created_at) VALUES (?,?,?)",
+        (token, user[0], datetime.utcnow().isoformat()),
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_user_by_session(token: str):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT users.username FROM sessions JOIN users ON users.id=sessions.user_id WHERE sessions.token=?",
+        (token,),
+    )
+    row = cur.fetchone()
+    conn.close()
+    if row:
+        return row[0]
+    return None
+
+
+def delete_session(token: str):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM sessions WHERE token=?", (token,))
+    conn.commit()
+    conn.close()
 
