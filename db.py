@@ -1,5 +1,6 @@
 import sqlite3
 from datetime import datetime
+import hashlib
 
 DB_PATH = 'ventas.db'
 
@@ -21,6 +22,7 @@ def init_db():
         """CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
         role_id INTEGER,
         FOREIGN KEY(role_id) REFERENCES roles(id)
     )"""
@@ -96,19 +98,44 @@ def add_role(name: str):
     conn.close()
 
 
-def add_user(username: str, role_name: str):
+def add_user(username: str, role_name: str, password: str):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT id FROM roles WHERE name=?", (role_name,))
     role = cur.fetchone()
     if not role:
         raise ValueError("Role not found")
+    password_hash = hashlib.sha256(password.encode()).hexdigest()
     cur.execute(
-        "INSERT OR IGNORE INTO users(username, role_id) VALUES (?,?)",
-        (username, role[0]),
+        "INSERT OR IGNORE INTO users(username, password_hash, role_id) VALUES (?,?,?)",
+        (username, password_hash, role[0]),
     )
     conn.commit()
     conn.close()
+
+
+def authenticate(username: str, password: str) -> bool:
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT password_hash FROM users WHERE username=?",
+        (username,),
+    )
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        return False
+    password_hash = hashlib.sha256(password.encode()).hexdigest()
+    return password_hash == row[0]
+
+
+def list_users():
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT username FROM users ORDER BY username")
+    users = [r[0] for r in cur.fetchall()]
+    conn.close()
+    return users
 
 
 def add_store(name: str):

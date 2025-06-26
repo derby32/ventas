@@ -13,6 +13,8 @@ SQLite database. The code is intended as a starting point for a larger system.
   When a sale is delivered, inventory is reduced according to the configured
   recipe.
 * Check server health with `/health`.
+* Access a minimal HTML interface at `/login` and `/users` for user
+  authentication and management.
 
 ## Running the server
 
@@ -27,5 +29,7 @@ The server listens on `0.0.0.0:8000`.
 The `db.py` module provides helper functions to create roles, users, stores,
 items, products and recipes. See the code for details.
 
-This prototype does not implement authentication or a user interface but lays
-the groundwork for managing sales, inventory and deliveries.
+The server now includes a very small HTML interface with login and basic user
+management. Use `/login` to authenticate and `/users` to create additional
+accounts (after logging in). Authentication is handled with cookies stored in
+memory, so this is only suitable for demonstration purposes.

@@ -7,7 +7,7 @@ def setup_module():
         os.remove(db.DB_PATH)
     db.init_db()
     db.add_role("cajero")
-    db.add_user("juan", "cajero")
+    db.add_user("juan", "cajero", "pass")
     db.add_store("barra1")
     db.add_item("gin", "liters")
     db.set_inventory("barra1", "gin", 10.0)
@@ -19,4 +19,9 @@ def test_sale_and_delivery():
     code = "deadbeef"
     db.create_sale("gin-tonic", "barra1", code)
     assert db.mark_delivered(code)
+
+
+def test_authenticate():
+    assert db.authenticate("juan", "pass")
+    assert not db.authenticate("juan", "wrong")
 
